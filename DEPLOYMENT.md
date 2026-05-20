@@ -70,7 +70,7 @@ git push -u origin main
 2. Copy **Internal Database URL**.
 3. **New +** → **Web Service** → connect GitHub repo.
 4. Settings:
-   - **Build Command:** `npm install && npx prisma db push && npm run build`
+   - **Build Command:** `npm install && npx prisma generate && npx prisma db push && npm run db:seed-all && npm run build`
    - **Start Command:** `npx next start -H 0.0.0.0 -p $PORT` (not `npm start -p $PORT`)
    - **Instance:** Free or paid
 5. **Environment variables:**

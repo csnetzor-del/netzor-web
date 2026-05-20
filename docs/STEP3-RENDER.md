@@ -63,15 +63,20 @@ Repo: **https://github.com/csnetzor-del/netzor-web**
 
 ### 3.3 — Seed database (demo users + services)
 
-1. Open your web service → **Shell** tab.
-2. Run:
+**Free Render (no Shell):** Demo data is seeded automatically during each deploy. The build command includes `npm run db:seed-all` after `prisma db push`. You should see `Seed complete.` in the **build** logs.
 
-```bash
-npm run db:seed
-npm run db:seed-services
+**Optional — seed from your PC** (if you skipped the updated build command):
+
+1. Render → **netzor-db** → copy **External Database URL**.
+2. In PowerShell on your PC:
+
+```powershell
+cd "d:\Projects\Netzor - Web"
+$env:DATABASE_URL="postgresql://..."   # paste External URL
+npm run db:seed-all
 ```
 
-3. You should see: `Seed complete.` and `Seeded 14 services.`
+**Paid Render with Shell:** You can still run `npm run db:seed-all` in the Shell tab.
 
 ### 3.4 — Set public URL (if not set)
 
@@ -110,7 +115,7 @@ npm run db:seed-services
 | `no such directory: .../10000` on deploy | **Settings → Start Command** must be `npx next start -H 0.0.0.0 -p $PORT` (not `npm start -p $PORT`) |
 | Build fails on Prisma | Check `DATABASE_URL` is set before build |
 | 502 on first visit | Free tier waking up — wait 30s and refresh |
-| Login fails | Run seed in Shell again |
+| Login fails | Redeploy (build runs seed) or run `npm run db:seed-all` locally with External `DATABASE_URL` |
 | Payment fails | Check Razorpay keys and `NETZOR_PAY_PROVIDER=razorpay` |
 | Webhook not firing | URL must be HTTPS Render URL + redeploy after adding secret |
 

@@ -64,10 +64,15 @@ async function main() {
   });
 
   if (clientProfile) {
-    const project = await prisma.project.create({
+    const demoProjectTitle = "E-Commerce Platform Redesign";
+    let project = await prisma.project.findFirst({
+      where: { clientId: clientProfile.id, title: demoProjectTitle },
+    });
+    if (!project) {
+      project = await prisma.project.create({
       data: {
         clientId: clientProfile.id,
-        title: "E-Commerce Platform Redesign",
+        title: demoProjectTitle,
         description: "Full-stack rebuild with modern UX and payment integration.",
         status: "IN_PROGRESS",
         progress: 62,
@@ -101,9 +106,12 @@ async function main() {
         },
       },
     });
+    }
 
-    const invoice = await prisma.invoice.create({
-      data: {
+    await prisma.invoice.upsert({
+      where: { invoiceNo: "INV-2025-0042" },
+      update: {},
+      create: {
         clientId: clientProfile.id,
         invoiceNo: "INV-2025-0042",
         title: "Platform Redesign — Phase 2",
@@ -137,6 +145,37 @@ async function main() {
       },
     });
 
+    const demoTicketSubject = "Request staging environment access";
+    const existingTicket = await prisma.ticket.findFirst({
+      where: { clientId: clientProfile.id, subject: demoTicketSubject },
+    });
+    if (!existingTicket) {
+    await prisma.ticket.create({
+      data: {
+        clientId: clientProfile.id,
+        subject: demoTicketSubject,
+        status: "IN_PROGRESS",
+        priority: "MEDIUM",
+        createdById: clientUser.id,
+        assignedToId: staffUser.id,
+        messages: {
+          create: [
+            {
+              userId: clientUser.id,
+              message: "Could we get VPN credentials for the staging server?",
+              isStaff: false,
+            },
+            {
+              userId: staffUser.id,
+              message: "Credentials will be sent to your registered email within 24 hours.",
+              isStaff: true,
+            },
+          ],
+        },
+      },
+    });
+    }
+
     for (const coupon of [
       {
         code: "WELCOME10",
@@ -160,30 +199,6 @@ async function main() {
       });
     }
 
-    await prisma.ticket.create({
-      data: {
-        clientId: clientProfile.id,
-        subject: "Request staging environment access",
-        status: "IN_PROGRESS",
-        priority: "MEDIUM",
-        createdById: clientUser.id,
-        assignedToId: staffUser.id,
-        messages: {
-          create: [
-            {
-              userId: clientUser.id,
-              message: "Could we get VPN credentials for the staging server?",
-              isStaff: false,
-            },
-            {
-              userId: staffUser.id,
-              message: "Credentials will be sent to your registered email within 24 hours.",
-              isStaff: true,
-            },
-          ],
-        },
-      },
-    });
   }
 
   const { servicesCatalog } = await import("../src/lib/services-catalog");
@@ -223,14 +238,17 @@ async function main() {
     data: { isActive: false },
   });
 
-  for (let i = 0; i < 30; i++) {
-    await prisma.analyticsEvent.create({
-      data: {
-        type: "page_view",
-        path: ["/", "/services", "/about", "/contact"][i % 4],
-        createdAt: new Date(Date.now() - i * 86400000 * 0.3),
-      },
-    });
+  const analyticsCount = await prisma.analyticsEvent.count();
+  if (analyticsCount < 30) {
+    for (let i = analyticsCount; i < 30; i++) {
+      await prisma.analyticsEvent.create({
+        data: {
+          type: "page_view",
+          path: ["/", "/services", "/about", "/contact"][i % 4],
+          createdAt: new Date(Date.now() - i * 86400000 * 0.3),
+        },
+      });
+    }
   }
 
   console.log("Seed complete.");
