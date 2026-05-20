@@ -12,7 +12,8 @@ services:
     plan: free
     branch: main
     buildCommand: npm install --include=dev && npx prisma generate && npx prisma db push && npm run build
-    startCommand: npm start
+    # Do NOT use "npm start -p $PORT" — npm treats -p as --prefix and breaks Next.js
+    startCommand: npx next start -H 0.0.0.0 -p $PORT
     healthCheckPath: /
     envVars:
       - key: NODE_ENV

@@ -41,7 +41,9 @@ Repo: **https://github.com/csnetzor-del/netzor-web**
 | Name | `netzor-web` |
 | Runtime | Node |
 | Build Command | `npm install && npx prisma generate && npx prisma db push && npm run build` |
-| Start Command | `npm start` |
+| Start Command | `npx next start -H 0.0.0.0 -p $PORT` |
+
+> **Important:** Never use `npm start -p $PORT`. On npm, `-p` means `--prefix`, so Render passes `10000` as a folder and Next.js crashes.
 
 4. **Environment** → Add variables:
 
@@ -105,6 +107,7 @@ npm run db:seed-services
 
 | Problem | Fix |
 |---------|-----|
+| `no such directory: .../10000` on deploy | **Settings → Start Command** must be `npx next start -H 0.0.0.0 -p $PORT` (not `npm start -p $PORT`) |
 | Build fails on Prisma | Check `DATABASE_URL` is set before build |
 | 502 on first visit | Free tier waking up — wait 30s and refresh |
 | Login fails | Run seed in Shell again |

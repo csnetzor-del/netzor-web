@@ -25,14 +25,42 @@ This app is **Next.js full-stack** (pages + API in one repo).
 
 ## Step 2 — Push code to GitHub
 
-```bash
-git init
-git add .
-git commit -m "NETZOR with Razorpay"
-git branch -M main
-git remote add origin https://github.com/YOUR_USER/netzor-web.git
+**Already done on your PC:** Git installed, repo initialized, first commit on `main` (99 files).
+
+### 2a — Create empty GitHub repository
+
+1. Open [https://github.com/new](https://github.com/new)
+2. Repository name: `netzor-web` (or any name)
+3. **Private** recommended
+4. Do **not** add README, .gitignore, or license (repo must stay empty)
+5. Click **Create repository**
+6. Copy the HTTPS URL, e.g. `https://github.com/YOUR_USERNAME/netzor-web.git`
+
+### 2b — Log in to GitHub (one time)
+
+In PowerShell:
+
+```powershell
+gh auth login
+```
+
+Choose: GitHub.com → HTTPS → Login with browser → authorize.
+
+### 2c — Push your code
+
+```powershell
+cd "d:\Projects\Netzor - Web"
+.\scripts\step2-github-push.ps1 -RepoUrl "https://github.com/YOUR_USERNAME/netzor-web.git"
+```
+
+Or manually:
+
+```powershell
+git remote add origin https://github.com/YOUR_USERNAME/netzor-web.git
 git push -u origin main
 ```
+
+**Done when:** GitHub shows your files and latest commit on `main`.
 
 ---
 
@@ -43,7 +71,7 @@ git push -u origin main
 3. **New +** → **Web Service** → connect GitHub repo.
 4. Settings:
    - **Build Command:** `npm install && npx prisma db push && npm run build`
-   - **Start Command:** `npm start`
+   - **Start Command:** `npx next start -H 0.0.0.0 -p $PORT` (not `npm start -p $PORT`)
    - **Instance:** Free or paid
 5. **Environment variables:**
 
