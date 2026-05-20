@@ -130,6 +130,7 @@ Do **not** run a full Next.js build on Netlify **and** on Render for the same do
 | Problem | Fix |
 |---------|-----|
 | netzor.in shows old Netlify page | Clear cache; confirm latest deploy; redirect must be **200** not 301 |
+| Address bar shows `netzor-web.onrender.com` | Add **Custom Domain** on Render for `netzor.in`; set `NEXT_PUBLIC_APP_URL`; Netlify redirect must be **200** not 301; remove meta-refresh in old deploy |
 | Login works on `.onrender.com` but not on netzor.in | `NEXT_PUBLIC_APP_URL` must match `netzor.in` or `www.netzor.in` |
 | Too Many Redirects | Do not proxy Render URL back to Netlify; proxy only on Netlify → Render |
 | `does not contain expected Next.js build output` | Set **Base directory** to `netlify-proxy`; Framework **None**; env `NETLIFY_NEXT_PLUGIN_SKIP=true` |
