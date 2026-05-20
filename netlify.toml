@@ -9,6 +9,6 @@
 
 [[redirects]]
   from = "/*"
-  to = "https://YOUR-SERVICE.onrender.com/:splat"
+  to = "https://netzor-web.onrender.com/:splat"
   status = 200
   force = true
