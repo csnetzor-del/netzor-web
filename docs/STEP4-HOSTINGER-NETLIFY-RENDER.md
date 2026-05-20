@@ -30,9 +30,13 @@ Open your Render URL, e.g. `https://netzor-web-xxxx.onrender.com` — homepage a
    | Build command | (from `netlify.toml`) |
    | Publish directory | `public` |
 
-5. **Before deploy**, edit `netlify.toml` in the repo (or in Netlify **File editor**): set your real Render URL in the redirect (see below).
+5. **Remove Next.js plugin** (fixes most Netlify build errors):
+   - **Site configuration** → **Build & deploy** → **Build plugins**
+   - Remove **@netlify/plugin-nextjs** (this deploy only proxies to Render).
 
-6. **Deploy site**.
+6. Confirm `netlify.toml` redirect points to your Render URL (`netzor-web.onrender.com` or your exact hostname).
+
+7. **Deploy site**.
 
 ### Step 3 — Edit proxy target (one-time)
 
@@ -120,6 +124,8 @@ Do **not** run a full Next.js build on Netlify **and** on Render for the same do
 | netzor.in shows old Netlify page | Clear cache; confirm latest deploy; redirect must be **200** not 301 |
 | Login works on `.onrender.com` but not on netzor.in | `NEXT_PUBLIC_APP_URL` must match `netzor.in` or `www.netzor.in` |
 | Too Many Redirects | Do not proxy Render URL back to Netlify; proxy only on Netlify → Render |
+| `does not contain expected Next.js build output` | Remove **@netlify/plugin-nextjs** from Netlify Build plugins |
+| Two redirect rules in deploy log | Delete extra rule in Netlify **Redirects** (keep one `200` to Render) |
 | 404 on Netlify | Publish dir must be `public`; redirect rule must be active |
 
 ---

@@ -1,11 +1,12 @@
-# Hostinger DNS → Netlify site → proxy to Render (see docs/STEP4-HOSTINGER-NETLIFY-RENDER.md)
-# 1. Replace YOUR-SERVICE below with your Render hostname (e.g. netzor-web-xxxx)
-# 2. Link this repo to your existing Netlify site and deploy
-# 3. On Render set NEXT_PUBLIC_APP_URL=https://netzor.in (or www)
+# Proxy-only: Netlify forwards netzor.in → Render (no Next.js build on Netlify)
 
 [build]
   command = "mkdir -p public && echo NETZOR proxy to Render > public/index.html"
   publish = "public"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+  enabled = false
 
 [[redirects]]
   from = "/*"
