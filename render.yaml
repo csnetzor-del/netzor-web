@@ -1,9 +1,19 @@
+# Optional: Render Dashboard -> New -> Blueprint -> connect repo csnetzor-del/netzor-web
+databases:
+  - name: netzor-db
+    plan: free
+    databaseName: netzor
+    user: netzor
+
 services:
   - type: web
     name: netzor-web
     runtime: node
+    plan: free
+    branch: main
     buildCommand: npm install && npx prisma generate && npx prisma db push && npm run build
-    startCommand: npm start
+    startCommand: npm start -p $PORT
+    healthCheckPath: /
     envVars:
       - key: NODE_ENV
         value: production
@@ -15,7 +25,17 @@ services:
         generateValue: true
       - key: NETZOR_PAY_PROVIDER
         value: razorpay
-
-databases:
-  - name: netzor-db
-    plan: free
+      - key: NETZOR_PAY_MERCHANT_ID
+        value: NZR-PROD
+      - key: NEXT_PUBLIC_APP_URL
+        sync: false
+      - key: NEXT_PUBLIC_RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+      - key: NEXT_PUBLIC_WHATSAPP_URL
+        sync: false
