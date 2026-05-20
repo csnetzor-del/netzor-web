@@ -87,8 +87,7 @@ git push -u origin main
 | `RAZORPAY_WEBHOOK_SECRET` | webhook secret |
 | `NODE_ENV` | `production` |
 
-6. Deploy → open URL → run seed once in **Shell**:
-   `npm run db:seed && npm run db:seed-services`
+6. Deploy → open URL. Demo data is seeded during build (`npm run db:seed-all`). On free Render, check build logs for `Seed complete.` — no Shell required.
 
 7. Update Razorpay webhook URL to your live Render URL.
 
