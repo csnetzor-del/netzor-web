@@ -1,0 +1,11 @@
+# Deploy ONLY this folder on Netlify (Site settings → Base directory: netlify-proxy)
+# Avoids Next.js auto-detection from the main package.json
+
+[build]
+  publish = "public"
+
+[[redirects]]
+  from = "/*"
+  to = "https://netzor-web.onrender.com/:splat"
+  status = 200
+  force = true

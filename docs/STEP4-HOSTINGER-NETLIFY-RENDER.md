@@ -30,13 +30,21 @@ Open your Render URL, e.g. `https://netzor-web-xxxx.onrender.com` — homepage a
    | Build command | (from `netlify.toml`) |
    | Publish directory | `public` |
 
-5. **Remove Next.js plugin** (fixes most Netlify build errors):
-   - **Site configuration** → **Build & deploy** → **Build plugins**
-   - Remove **@netlify/plugin-nextjs** (this deploy only proxies to Render).
+5. **Stop Netlify auto-detecting Next.js** (even when Build plugins is empty):
 
-6. Confirm `netlify.toml` redirect points to your Render URL (`netzor-web.onrender.com` or your exact hostname).
+   **Recommended — use subfolder `netlify-proxy`:**
+   - **Site configuration** → **Build & deploy** → **Build settings** → **Edit settings**
+   - **Base directory:** `netlify-proxy`
+   - **Build command:** leave **empty** (or delete override)
+   - **Publish directory:** leave **empty** (uses `netlify-proxy/netlify.toml` → `public`)
+   - **Framework preset:** **Other** or **None** (not Next.js)
 
-7. **Deploy site**.
+   **Also add environment variable** (Site → Environment variables):
+   - Key: `NETLIFY_NEXT_PLUGIN_SKIP` → Value: `true`
+
+6. Confirm redirect target is your real Render URL in `netlify-proxy/netlify.toml`.
+
+7. **Deploy site** — build log should **not** say `Using Next.js Runtime`.
 
 ### Step 3 — Edit proxy target (one-time)
 
@@ -124,7 +132,8 @@ Do **not** run a full Next.js build on Netlify **and** on Render for the same do
 | netzor.in shows old Netlify page | Clear cache; confirm latest deploy; redirect must be **200** not 301 |
 | Login works on `.onrender.com` but not on netzor.in | `NEXT_PUBLIC_APP_URL` must match `netzor.in` or `www.netzor.in` |
 | Too Many Redirects | Do not proxy Render URL back to Netlify; proxy only on Netlify → Render |
-| `does not contain expected Next.js build output` | Remove **@netlify/plugin-nextjs** from Netlify Build plugins |
+| `does not contain expected Next.js build output` | Set **Base directory** to `netlify-proxy`; Framework **None**; env `NETLIFY_NEXT_PLUGIN_SKIP=true` |
+| Build log says `Using Next.js Runtime` | Netlify auto-detected Next from root `package.json` — use **Base directory: netlify-proxy** |
 | Two redirect rules in deploy log | Delete extra rule in Netlify **Redirects** (keep one `200` to Render) |
 | 404 on Netlify | Publish dir must be `public`; redirect rule must be active |
 

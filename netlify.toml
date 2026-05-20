@@ -1,8 +1,12 @@
-# Proxy-only: Netlify forwards netzor.in → Render (no Next.js build on Netlify)
+# If Netlify still runs the Next.js plugin, set Base directory to "netlify-proxy" in the UI.
+# See docs/STEP4-HOSTINGER-NETLIFY-RENDER.md
 
 [build]
   command = "mkdir -p public && echo NETZOR proxy to Render > public/index.html"
   publish = "public"
+
+[build.environment]
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
