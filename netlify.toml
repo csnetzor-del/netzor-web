@@ -1,0 +1,7 @@
+[build]
+  command = "npm run build"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# Prefer deploying API on Render; use Netlify for domain/CDN or full Next if you duplicate env vars.

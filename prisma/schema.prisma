@@ -1,0 +1,251 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STAFF
+  CLIENT
+}
+
+enum ProjectStatus {
+  PLANNING
+  IN_PROGRESS
+  REVIEW
+  COMPLETED
+  ON_HOLD
+}
+
+enum InvoiceStatus {
+  DRAFT
+  PENDING
+  PARTIAL
+  PAID
+  OVERDUE
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum InstallmentStatus {
+  PENDING
+  PAID
+  OVERDUE
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_CLIENT
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+model User {
+  id             String          @id @default(cuid())
+  email          String          @unique
+  passwordHash   String
+  name           String
+  role           Role            @default(CLIENT)
+  isActive       Boolean         @default(true)
+  clientProfile  ClientProfile?
+  staffProfile   StaffProfile?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  ticketMessages TicketMessage[]
+  analytics      AnalyticsEvent[]
+  createdTickets Ticket[]        @relation("TicketCreator")
+  assignedTickets Ticket[]       @relation("TicketAssignee")
+}
+
+model ClientProfile {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName String?
+  phone       String?
+  address     String?
+  clientCode  String    @unique
+  projects    Project[]
+  invoices    Invoice[]
+  tickets     Ticket[]
+  createdAt   DateTime  @default(now())
+}
+
+model StaffProfile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  department  String?
+  permissions String   @default("[]")
+  createdAt   DateTime @default(now())
+}
+
+model Project {
+  id          String         @id @default(cuid())
+  clientId    String
+  client      ClientProfile  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  status      ProjectStatus  @default(PLANNING)
+  progress    Int            @default(0)
+  startDate   DateTime?
+  dueDate     DateTime?
+  updates     ProjectUpdate[]
+  documents   ProjectDocument[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model ProjectUpdate {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  createdAt DateTime @default(now())
+}
+
+model ProjectDocument {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name      String
+  fileUrl   String
+  fileType  String   @default("pdf")
+  createdAt DateTime @default(now())
+}
+
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique
+  description String
+  shortDesc   String?
+  emoji       String?
+  icon        String   @default("code")
+  category    String   @default("core")
+  features    String   @default("[]")
+  priceFrom   Float?
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Invoice {
+  id           String        @id @default(cuid())
+  clientId     String
+  client       ClientProfile @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  invoiceNo    String        @unique
+  title        String
+  totalAmount  Float
+  paidAmount   Float         @default(0)
+  status       InvoiceStatus @default(PENDING)
+  dueDate      DateTime?
+  installments Installment[]
+  payments     Payment[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model Installment {
+  id         String            @id @default(cuid())
+  invoiceId  String
+  invoice    Invoice           @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  label      String
+  amount     Float
+  dueDate    DateTime
+  status     InstallmentStatus @default(PENDING)
+  paidAt     DateTime?
+  createdAt  DateTime          @default(now())
+}
+
+model Coupon {
+  id              String    @id @default(cuid())
+  code            String    @unique
+  description     String?
+  discountPercent Float?
+  discountAmount  Float?
+  minOrderAmount  Float     @default(0)
+  maxUses         Int?
+  usedCount       Int       @default(0)
+  isActive        Boolean   @default(true)
+  expiresAt       DateTime?
+  payments        Payment[]
+  createdAt       DateTime  @default(now())
+}
+
+model Payment {
+  id              String        @id @default(cuid())
+  invoiceId       String
+  invoice         Invoice       @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  installmentId   String?
+  amount          Float
+  discountAmount  Float         @default(0)
+  finalAmount     Float
+  status          PaymentStatus @default(PENDING)
+  method          String        @default("netzor_pay")
+  transactionId   String?       @unique
+  couponId        String?
+  coupon          Coupon?       @relation(fields: [couponId], references: [id])
+  gatewayResponse String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Ticket {
+  id           String         @id @default(cuid())
+  clientId     String
+  client       ClientProfile  @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  subject      String
+  status       TicketStatus   @default(OPEN)
+  priority     TicketPriority @default(MEDIUM)
+  createdById  String
+  createdBy    User           @relation("TicketCreator", fields: [createdById], references: [id])
+  assignedToId String?
+  assignedTo   User?          @relation("TicketAssignee", fields: [assignedToId], references: [id])
+  messages     TicketMessage[]
+  rating       Int?
+  feedback     String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+}
+
+model TicketMessage {
+  id        String   @id @default(cuid())
+  ticketId  String
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  message   String
+  isStaff   Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  type      String
+  path      String?
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  metadata  String?
+  createdAt DateTime @default(now())
+}
