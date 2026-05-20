@@ -11,7 +11,7 @@ export default async function DashboardLayout({
 }) {
   const session = await getSession();
   if (!session) redirect("/auth/signin");
-  if (session.role === "ADMIN") redirect("/admin");
+  if (session.role === "ADMIN" || session.role === "STAFF") redirect("/admin");
 
   return (
     <div className="mesh-bg min-h-screen">

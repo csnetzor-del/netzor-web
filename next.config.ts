@@ -1,5 +1,23 @@
 import type { NextConfig } from "next";
 
+function serverActionOrigins(): string[] {
+  const hosts = new Set([
+    "localhost:3000",
+    "netzor.in",
+    "www.netzor.in",
+    "*.netzor.in",
+  ]);
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (appUrl) {
+    try {
+      hosts.add(new URL(appUrl).host);
+    } catch {
+      /* ignore invalid URL */
+    }
+  }
+  return [...hosts];
+}
+
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
@@ -13,6 +31,7 @@ const nextConfig: NextConfig = {
   experimental: {
     serverActions: {
       bodySizeLimit: "2mb",
+      allowedOrigins: serverActionOrigins(),
     },
   },
 };
