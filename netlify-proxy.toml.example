@@ -1,0 +1,12 @@
+# Copy to netlify.toml ONLY if using Option B (proxy to Render).
+# Replace YOUR_RENDER_URL with e.g. https://netzor-web.onrender.com
+
+[build]
+  command = "mkdir -p public && echo Netzor proxy to Render > public/index.html"
+  publish = "public"
+
+[[redirects]]
+  from = "/*"
+  to = "https://YOUR_RENDER_URL.onrender.com/:splat"
+  status = 200
+  force = true

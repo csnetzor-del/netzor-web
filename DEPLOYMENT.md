@@ -93,17 +93,11 @@ git push -u origin main
 
 ---
 
-## Step 4 — Netlify (frontend / domain)
+## Step 4 — Netlify domain → Render app
 
-**Option A (recommended):** Use Netlify only for **custom domain** DNS → CNAME to Render URL.
+Full guide: **[docs/STEP4-NETLIFY-DOMAIN.md](docs/STEP4-NETLIFY-DOMAIN.md)**
 
-**Option B:** Deploy same repo on Netlify with Next.js plugin:
-- Build: `npm run build`
-- Publish: `.next` (use `@netlify/plugin-nextjs`)
-- Same env vars as Render
-- Set `NEXT_PUBLIC_APP_URL` to Netlify URL
-
-Because API routes need a server, **Option A** avoids running two backends.
+**Recommended:** Netlify manages **DNS** for `netzor.in`; Render runs the app. Add custom domains on Render, create CNAME/ALIAS in Netlify DNS, set `NEXT_PUBLIC_APP_URL=https://www.netzor.in`. No separate frontend/API link.
 
 ---
 
