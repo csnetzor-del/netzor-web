@@ -1,0 +1,3 @@
+# Proxy netzor.in (Netlify) → Render. Replace YOUR-SERVICE with your Render app hostname.
+# Status 200 = rewrite/proxy (required for login and API routes).
+/*  https://YOUR-SERVICE.onrender.com/:splat  200

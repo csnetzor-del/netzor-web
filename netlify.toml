@@ -1,14 +1,14 @@
-# Default: do NOT build Next on Netlify when using Render (see docs/STEP4-NETLIFY-DOMAIN.md).
-# Option A: point netzor.in DNS (Netlify Domains) → Render custom domain — no Netlify deploy needed.
-# Option B: proxy-only — copy netlify-proxy.toml.example → netlify.toml and set YOUR_RENDER_URL.
+# Hostinger DNS → Netlify site → proxy to Render (see docs/STEP4-HOSTINGER-NETLIFY-RENDER.md)
+# 1. Replace YOUR-SERVICE below with your Render hostname (e.g. netzor-web-xxxx)
+# 2. Link this repo to your existing Netlify site and deploy
+# 3. On Render set NEXT_PUBLIC_APP_URL=https://netzor.in (or www)
 
 [build]
-  command = "mkdir -p public && echo 'Use Render for app; see docs/STEP4-NETLIFY-DOMAIN.md' > public/index.html"
+  command = "mkdir -p public && echo NETZOR proxy to Render > public/index.html"
   publish = "public"
 
-# Uncomment below + set RENDER host for Option B proxy (status 200 = proxy, not redirect):
-# [[redirects]]
-#   from = "/*"
-#   to = "https://YOUR-SERVICE.onrender.com/:splat"
-#   status = 200
-#   force = true
+[[redirects]]
+  from = "/*"
+  to = "https://YOUR-SERVICE.onrender.com/:splat"
+  status = 200
+  force = true

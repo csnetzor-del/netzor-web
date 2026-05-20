@@ -95,7 +95,8 @@ git push -u origin main
 
 ## Step 4 — Netlify domain → Render app
 
-Full guide: **[docs/STEP4-NETLIFY-DOMAIN.md](docs/STEP4-NETLIFY-DOMAIN.md)**
+- **Hostinger + existing Netlify site:** [docs/STEP4-HOSTINGER-NETLIFY-RENDER.md](docs/STEP4-HOSTINGER-NETLIFY-RENDER.md)  
+- **Domain DNS on Netlify:** [docs/STEP4-NETLIFY-DOMAIN.md](docs/STEP4-NETLIFY-DOMAIN.md)
 
 **Recommended:** Netlify manages **DNS** for `netzor.in`; Render runs the app. Add custom domains on Render, create CNAME/ALIAS in Netlify DNS, set `NEXT_PUBLIC_APP_URL=https://www.netzor.in`. No separate frontend/API link.
 

@@ -1,8 +1,11 @@
-# Step 4 — Connect netzor.in (Netlify) to Render
+# Step 4 — Connect netzor.in to Render
 
 Your app runs **entirely on Render** (pages + login API). Netlify does **not** need a second Next.js build or a separate API connection.
 
-Choose **one** option below.
+> **Domain on Hostinger + site already on Netlify?**  
+> Use **[STEP4-HOSTINGER-NETLIFY-RENDER.md](./STEP4-HOSTINGER-NETLIFY-RENDER.md)** — keep Hostinger → Netlify DNS, proxy Netlify → Render.
+
+Choose **one** option below (domain/DNS managed in Netlify).
 
 ---
 
