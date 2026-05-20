@@ -12,7 +12,7 @@ services:
     plan: free
     branch: main
     buildCommand: npm install --include=dev && npx prisma generate && npx prisma db push && npm run build
-    startCommand: npm start -p $PORT
+    startCommand: npm start
     healthCheckPath: /
     envVars:
       - key: NODE_ENV
