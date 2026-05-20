@@ -1,8 +1,14 @@
-# Deploy ONLY this folder on Netlify (Site settings → Base directory: netlify-proxy)
-# Avoids Next.js auto-detection from the main package.json
+# Deploy with Base directory: netlify-proxy
+# Proxies all traffic to Render (browser stays on netzor.in)
 
 [build]
   publish = "public"
+
+[[redirects]]
+  from = "/"
+  to = "https://netzor-web.onrender.com/"
+  status = 200
+  force = true
 
 [[redirects]]
   from = "/*"
