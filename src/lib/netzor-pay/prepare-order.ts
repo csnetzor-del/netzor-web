@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { generateTransactionId } from "@/lib/utils";
+import { isRegistrationInvoice } from "@/lib/registration";
 import { validateCoupon } from "./coupons";
 
 export type PrepareOrderInput = {
@@ -21,6 +22,20 @@ export async function preparePaymentOrder(input: PrepareOrderInput) {
   }
 
   const balance = invoice.totalAmount - invoice.paidAmount;
+  const registration = isRegistrationInvoice(invoice);
+
+  if (registration) {
+    if (input.couponCode) {
+      return { ok: false as const, error: "Coupons cannot be used for registration" };
+    }
+    if (Math.abs(input.amount - balance) > 0.01) {
+      return {
+        ok: false as const,
+        error: "Registration fee must be paid in full",
+      };
+    }
+  }
+
   if (input.amount <= 0 || input.amount > balance + 0.01) {
     return { ok: false as const, error: "Invalid payment amount" };
   }

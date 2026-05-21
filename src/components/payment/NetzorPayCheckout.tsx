@@ -13,8 +13,10 @@ type Props = {
   installmentId?: string;
   maxAmount: number;
   defaultAmount?: number;
-  onSuccess?: (txId: string) => void;
+  onSuccess?: (txId: string) => void | Promise<void>;
   razorpayEnabled?: boolean;
+  /** Fixed ₹500 registration — no amount/coupon edits */
+  registrationMode?: boolean;
 };
 
 type RazorpayOptions = {
@@ -47,6 +49,7 @@ export function NetzorPayCheckout({
   defaultAmount,
   onSuccess,
   razorpayEnabled = false,
+  registrationMode = false,
 }: Props) {
   const [amount, setAmount] = useState(String(defaultAmount ?? maxAmount));
   const [coupon, setCoupon] = useState("");
@@ -105,7 +108,9 @@ export function NetzorPayCheckout({
       amount: data.amount,
       currency: data.currency,
       name: "NETZOR",
-      description: "Netzor Pay — Invoice payment",
+      description: registrationMode
+        ? "Client account registration fee"
+        : "Netzor Pay — Invoice payment",
       order_id: data.razorpayOrderId,
       prefill: data.prefill,
       theme: { color: "#007fff" },
@@ -130,15 +135,18 @@ export function NetzorPayCheckout({
         }
 
         setSuccess(`Payment successful. Transaction: ${verifyData.transactionId}`);
-        onSuccess?.(verifyData.transactionId);
-        window.location.reload();
+        if (onSuccess) {
+          await onSuccess(verifyData.transactionId);
+        } else {
+          window.location.reload();
+        }
       },
       modal: {
         ondismiss: () => setLoading(false),
       },
     });
     rzp.open();
-  }, [amount, coupon, invoiceId, installmentId, onSuccess]);
+  }, [amount, coupon, invoiceId, installmentId, onSuccess, registrationMode]);
 
   async function paySimulated(e: React.FormEvent) {
     e.preventDefault();
@@ -167,7 +175,11 @@ export function NetzorPayCheckout({
     }
 
     setSuccess(`Payment successful. Transaction: ${data.transactionId}`);
-    onSuccess?.(data.transactionId);
+    if (onSuccess) {
+      await onSuccess(data.transactionId);
+    } else {
+      window.location.reload();
+    }
   }
 
   const numAmount = parseFloat(amount) || 0;
@@ -190,50 +202,56 @@ export function NetzorPayCheckout({
               Netzor Pay
             </CardTitle>
             <p className="text-sm text-muted mt-1">
-              {razorpayEnabled
-                ? "Secured by Razorpay · UPI, cards & netbanking"
-                : "Development mode · simulated payments"}
+              {registrationMode
+                ? "One-time registration fee · portal access after verification"
+                : razorpayEnabled
+                  ? "Secured by Razorpay · UPI, cards & netbanking"
+                  : "Development mode · simulated payments"}
             </p>
           </div>
           <Lock className="h-8 w-8 text-accent/40" />
         </CardHeader>
 
         <div className="space-y-4">
-          <Input
-            label="Payment amount"
-            type="number"
-            min={1}
-            max={maxAmount}
-            step="0.01"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
-          />
+          {!registrationMode ? (
+            <>
+              <Input
+                label="Payment amount"
+                type="number"
+                min={1}
+                max={maxAmount}
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                required
+              />
 
-          <div className="flex gap-2">
-            <Input
-              label="Coupon code"
-              placeholder="e.g. WELCOME10"
-              value={coupon}
-              onChange={(e) => setCoupon(e.target.value.toUpperCase())}
-              className="flex-1"
-            />
-            <Button
-              type="button"
-              variant="secondary"
-              className="mt-6"
-              onClick={applyCoupon}
-            >
-              Apply
-            </Button>
-          </div>
+              <div className="flex gap-2">
+                <Input
+                  label="Coupon code"
+                  placeholder="e.g. WELCOME10"
+                  value={coupon}
+                  onChange={(e) => setCoupon(e.target.value.toUpperCase())}
+                  className="flex-1"
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  className="mt-6"
+                  onClick={applyCoupon}
+                >
+                  Apply
+                </Button>
+              </div>
 
-          {preview && (
-            <p className="text-sm text-success">
-              Discount applied: {formatRupee(preview.discount)}
-              {preview.message && ` — ${preview.message}`}
-            </p>
-          )}
+              {preview && (
+                <p className="text-sm text-success">
+                  Discount applied: {formatRupee(preview.discount)}
+                  {preview.message && ` — ${preview.message}`}
+                </p>
+              )}
+            </>
+          ) : null}
 
           <div className="rounded-lg bg-surface-elevated p-3 text-sm">
             <div className="flex justify-between text-muted">

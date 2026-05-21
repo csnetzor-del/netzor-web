@@ -23,10 +23,11 @@ export default function SignUpPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: form.get("name"),
-        email: form.get("email"),
-        password: form.get("password"),
         companyName: form.get("companyName"),
         phone: form.get("phone"),
+        email: form.get("email"),
+        address: form.get("address"),
+        password: form.get("password"),
       }),
     });
     const data = await res.json();
@@ -35,7 +36,7 @@ export default function SignUpPage() {
       setError(data.error || "Registration failed");
       return;
     }
-    router.push("/dashboard");
+    router.push(data.redirect || "/auth/signup/payment");
     router.refresh();
   }
 
@@ -48,14 +49,26 @@ export default function SignUpPage() {
           </div>
           <CardTitle>Create client account</CardTitle>
           <p className="text-sm text-muted mt-1">
-            Register to track projects and pay securely
+            Register, then pay ₹500 to activate your portal access
           </p>
         </CardHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input label="Full name" name="name" required />
-          <Input label="Company" name="companyName" />
-          <Input label="Phone" name="phone" type="tel" />
+          <Input label="Client name" name="name" required />
+          <Input label="Company name" name="companyName" />
+          <Input label="Phone number" name="phone" type="tel" />
           <Input label="Email" name="email" type="email" required />
+          <div className="space-y-1.5">
+            <label htmlFor="address" className="block text-sm text-muted">
+              Address
+            </label>
+            <textarea
+              id="address"
+              name="address"
+              required
+              rows={3}
+              className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground placeholder:text-muted/60 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            />
+          </div>
           <Input
             label="Password"
             name="password"

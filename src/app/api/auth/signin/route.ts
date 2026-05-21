@@ -20,13 +20,30 @@ export async function POST(request: Request) {
       where: { email: body.email.toLowerCase() },
     });
 
-    if (!user || !user.isActive) {
+    if (!user) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
     const valid = await verifyPassword(body.password, user.passwordHash);
     if (!valid) {
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    }
+
+    if (!user.isActive && user.role === "CLIENT") {
+      const session = await buildSessionFromUser(user.id, { allowInactive: true });
+      if (!session) {
+        return NextResponse.json({ error: "Account unavailable" }, { status: 403 });
+      }
+      await createSession(session);
+      return NextResponse.json({
+        ok: true,
+        redirect: "/auth/signup/payment",
+        pendingActivation: true,
+      });
+    }
+
+    if (!user.isActive) {
+      return NextResponse.json({ error: "Account unavailable" }, { status: 403 });
     }
 
     const session = await buildSessionFromUser(user.id);

@@ -7,6 +7,11 @@ const secret = new TextEncoder().encode(
   process.env.JWT_SECRET || "dev-secret-change-in-production-min-32-chars"
 );
 
+type SessionPayload = {
+  role?: string;
+  isActive?: boolean;
+};
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get(COOKIE_NAME)?.value;
@@ -14,26 +19,37 @@ export async function middleware(request: NextRequest) {
   const isProtected =
     pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
   const isAuthPage =
-    pathname.startsWith("/auth/signin") || pathname.startsWith("/auth/signup");
+    pathname.startsWith("/auth/signin") ||
+    pathname.startsWith("/auth/signup");
+  const isRegistrationPayment = pathname === "/auth/signup/payment";
 
-  if (!isProtected && !pathname.startsWith("/admin")) {
+  if (!isProtected && !isAuthPage && !pathname.startsWith("/admin")) {
     return NextResponse.next();
   }
 
-  let session: { role?: string } | null = null;
+  let session: SessionPayload | null = null;
   if (token) {
     try {
       const { payload } = await jwtVerify(token, secret);
-      session = payload as { role?: string };
+      session = payload as SessionPayload;
     } catch {
       session = null;
     }
   }
 
+  const isInactiveClient =
+    session?.role === "CLIENT" && session.isActive === false;
+
   if (isProtected && !session) {
     const url = request.nextUrl.clone();
     url.pathname = "/auth/signin";
     url.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(url);
+  }
+
+  if (isProtected && isInactiveClient) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/signup/payment";
     return NextResponse.redirect(url);
   }
 
@@ -45,18 +61,39 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  if (isAuthPage && session) {
+  if (isAuthPage && session && !isRegistrationPayment) {
     const url = request.nextUrl.clone();
-    url.pathname =
-      session.role === "ADMIN" || session.role === "STAFF"
-        ? "/admin"
-        : "/dashboard";
+    if (isInactiveClient) {
+      url.pathname = "/auth/signup/payment";
+    } else {
+      url.pathname =
+        session.role === "ADMIN" || session.role === "STAFF"
+          ? "/admin"
+          : "/dashboard";
+    }
     return NextResponse.redirect(url);
+  }
+
+  if (isRegistrationPayment && session?.isActive !== false) {
+    if (session) {
+      const url = request.nextUrl.clone();
+      url.pathname =
+        session.role === "ADMIN" || session.role === "STAFF"
+          ? "/admin"
+          : "/dashboard";
+      return NextResponse.redirect(url);
+    }
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*", "/auth/signin", "/auth/signup"],
+  matcher: [
+    "/dashboard/:path*",
+    "/admin/:path*",
+    "/auth/signin",
+    "/auth/signup",
+    "/auth/signup/payment",
+  ],
 };

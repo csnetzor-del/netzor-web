@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
-import { getSession } from "@/lib/auth";
+import {
+  buildSessionFromUser,
+  createSession,
+  getSession,
+} from "@/lib/auth";
+import { assertClientCanPayInvoice } from "@/lib/payment-access";
 import { finalizeRazorpayPayment } from "@/lib/netzor-pay/razorpay";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
@@ -25,10 +30,20 @@ export async function POST(request: Request) {
         id: body.paymentId,
         invoice: { clientId: session.clientProfileId },
       },
+      include: { invoice: true },
     });
 
     if (!payment) {
       return NextResponse.json({ error: "Payment not found" }, { status: 404 });
+    }
+
+    const access = await assertClientCanPayInvoice(
+      session.id,
+      session.clientProfileId,
+      payment.invoice
+    );
+    if (!access.ok) {
+      return NextResponse.json({ error: access.error }, { status: access.status });
     }
 
     const result = await finalizeRazorpayPayment({
@@ -42,10 +57,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: result.error }, { status: 400 });
     }
 
+    if (result.activatedUserId) {
+      const fresh = await buildSessionFromUser(result.activatedUserId);
+      if (fresh) await createSession(fresh);
+    }
+
     return NextResponse.json({
       transactionId: result.transactionId,
       finalAmount: result.finalAmount,
       discountAmount: result.discountAmount,
+      accountActivated: Boolean(result.activatedUserId),
     });
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });

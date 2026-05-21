@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
+import { assertClientCanPayInvoice } from "@/lib/payment-access";
 import { preparePaymentOrder } from "@/lib/netzor-pay/prepare-order";
+import { prisma } from "@/lib/prisma";
 import {
   createRazorpayOrder,
   getPublicKeyId,
@@ -30,6 +32,19 @@ export async function POST(request: Request) {
 
   try {
     const body = schema.parse(await request.json());
+    const invoice = await prisma.invoice.findUnique({ where: { id: body.invoiceId } });
+    if (!invoice) {
+      return NextResponse.json({ error: "Invoice not found" }, { status: 404 });
+    }
+    const access = await assertClientCanPayInvoice(
+      session.id,
+      session.clientProfileId,
+      invoice
+    );
+    if (!access.ok) {
+      return NextResponse.json({ error: access.error }, { status: access.status });
+    }
+
     const prepared = await preparePaymentOrder({
       ...body,
       clientProfileId: session.clientProfileId,
@@ -48,7 +63,6 @@ export async function POST(request: Request) {
       },
     });
 
-    const { prisma } = await import("@/lib/prisma");
     await prisma.payment.update({
       where: { id: prepared.payment.id },
       data: {

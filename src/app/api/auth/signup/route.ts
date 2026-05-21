@@ -7,6 +7,7 @@ import {
 } from "@/lib/auth";
 import { generateClientCode } from "@/lib/utils";
 import { trackEvent } from "@/lib/analytics";
+import { createRegistrationInvoice } from "@/lib/registration";
 import { z } from "zod";
 
 const schema = z.object({
@@ -15,6 +16,7 @@ const schema = z.object({
   password: z.string().min(8),
   companyName: z.string().optional(),
   phone: z.string().optional(),
+  address: z.string().min(3),
 });
 
 export async function POST(request: Request) {
@@ -24,6 +26,24 @@ export async function POST(request: Request) {
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
+      if (!existing.isActive) {
+        const profile = await prisma.clientProfile.findUnique({
+          where: { userId: existing.id },
+        });
+        if (profile) {
+          const invoice = await createRegistrationInvoice(profile.id, profile.clientCode);
+          const session = await buildSessionFromUser(existing.id, {
+            allowInactive: true,
+          });
+          if (session) await createSession(session);
+          return NextResponse.json({
+            ok: true,
+            redirect: "/auth/signup/payment",
+            invoiceId: invoice.id,
+            resumed: true,
+          });
+        }
+      }
       return NextResponse.json({ error: "Email already registered" }, { status: 409 });
     }
 
@@ -39,21 +59,31 @@ export async function POST(request: Request) {
         name: body.name,
         passwordHash,
         role: "CLIENT",
+        isActive: false,
         clientProfile: {
           create: {
-            companyName: body.companyName,
-            phone: body.phone,
+            companyName: body.companyName || null,
+            phone: body.phone || null,
+            address: body.address,
             clientCode,
           },
         },
       },
+      include: { clientProfile: true },
     });
 
-    const session = await buildSessionFromUser(user.id);
-    if (session) await createSession(session);
-    await trackEvent("user_signup", "/auth/signup", user.id);
+    const profile = user.clientProfile!;
+    const invoice = await createRegistrationInvoice(profile.id, clientCode);
 
-    return NextResponse.json({ ok: true });
+    const session = await buildSessionFromUser(user.id, { allowInactive: true });
+    if (session) await createSession(session);
+    await trackEvent("user_signup_pending", "/auth/signup", user.id);
+
+    return NextResponse.json({
+      ok: true,
+      redirect: "/auth/signup/payment",
+      invoiceId: invoice.id,
+    });
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 });
   }

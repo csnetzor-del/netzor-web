@@ -1,4 +1,8 @@
 import { prisma } from "@/lib/prisma";
+import {
+  activateClientAfterRegistration,
+  isRegistrationInvoice,
+} from "@/lib/registration";
 
 export async function completePayment(
   paymentId: string,
@@ -6,7 +10,7 @@ export async function completePayment(
 ) {
   const payment = await prisma.payment.findUnique({
     where: { id: paymentId },
-    include: { invoice: true },
+    include: { invoice: { include: { client: true } } },
   });
 
   if (!payment) {
@@ -14,10 +18,22 @@ export async function completePayment(
   }
 
   if (payment.status === "COMPLETED") {
+    let activatedUserId: string | undefined;
+    if (isRegistrationInvoice(payment.invoice)) {
+      const user = await prisma.user.findUnique({
+        where: { id: payment.invoice.client.userId },
+      });
+      if (user && !user.isActive) {
+        activatedUserId =
+          (await activateClientAfterRegistration(payment.invoice.clientId)) ??
+          undefined;
+      }
+    }
     return {
       ok: true as const,
       transactionId: payment.transactionId!,
       alreadyCompleted: true,
+      activatedUserId,
     };
   }
 
@@ -60,10 +76,17 @@ export async function completePayment(
     }
   });
 
+  let activatedUserId: string | undefined;
+  if (isRegistrationInvoice(invoice)) {
+    activatedUserId =
+      (await activateClientAfterRegistration(invoice.clientId)) ?? undefined;
+  }
+
   return {
     ok: true as const,
     transactionId: payment.transactionId!,
     finalAmount: payment.finalAmount,
     discountAmount: payment.discountAmount,
+    activatedUserId,
   };
 }

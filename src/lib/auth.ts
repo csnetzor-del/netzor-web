@@ -14,6 +14,7 @@ export type SessionUser = {
   email: string;
   name: string;
   role: Role;
+  isActive: boolean;
   clientProfileId?: string;
   staffProfileId?: string;
 };
@@ -32,6 +33,7 @@ export async function createSession(user: SessionUser) {
     email: user.email,
     name: user.name,
     role: user.role,
+    isActive: user.isActive,
     clientProfileId: user.clientProfileId,
     staffProfileId: user.staffProfileId,
   })
@@ -66,6 +68,7 @@ export async function getSession(): Promise<SessionUser | null> {
       email: payload.email as string,
       name: payload.name as string,
       role: payload.role as Role,
+      isActive: payload.isActive !== false,
       clientProfileId: payload.clientProfileId as string | undefined,
       staffProfileId: payload.staffProfileId as string | undefined,
     };
@@ -81,15 +84,20 @@ export async function getUserWithProfile(userId: string) {
   });
 }
 
-export async function buildSessionFromUser(userId: string) {
+export async function buildSessionFromUser(
+  userId: string,
+  options?: { allowInactive?: boolean }
+) {
   const user = await getUserWithProfile(userId);
-  if (!user || !user.isActive) return null;
+  if (!user) return null;
+  if (!user.isActive && !options?.allowInactive) return null;
 
   return {
     id: user.id,
     email: user.email,
     name: user.name,
     role: user.role,
+    isActive: user.isActive,
     clientProfileId: user.clientProfile?.id,
     staffProfileId: user.staffProfile?.id,
   } satisfies SessionUser;

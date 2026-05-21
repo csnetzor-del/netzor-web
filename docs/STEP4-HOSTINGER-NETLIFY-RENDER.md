@@ -76,7 +76,15 @@ Typical Hostinger DNS (unchanged):
 |------|------|-----------|
 | A or CNAME | `@` / `www` | Netlify (as Netlify docs show) |
 
-### Step 5 — Render environment
+### Step 5 — Add netzor.in on Render (keeps netzor.in in the address bar)
+
+If the browser shows `netzor-web.onrender.com`, add your domain on Render:
+
+1. Render → **netzor-web** → **Settings** → **Custom Domains**
+2. Add **`netzor.in`** and **`www.netzor.in`**
+3. Wait until Render shows them as **verified** (DNS can still go through Netlify)
+
+### Step 6 — Render environment
 
 Render → **Environment**:
 
@@ -86,7 +94,7 @@ Render → **Environment**:
 
 **Manual Deploy** on Render.
 
-### Step 6 — Razorpay
+### Step 7 — Razorpay
 
 Webhook URL:
 
