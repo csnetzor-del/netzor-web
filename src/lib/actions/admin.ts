@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { getSession, hashPassword, canAccessAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { generateClientCode } from "@/lib/utils";
@@ -43,6 +44,31 @@ export async function createClientAccount(formData: FormData) {
   });
 
   revalidatePath("/admin/clients");
+}
+
+export async function removeClientAccount(formData: FormData) {
+  const session = await requireAdmin();
+  const userId = String(formData.get("userId"));
+
+  if (!userId) {
+    redirect("/admin/clients?error=Invalid%20client");
+  }
+  if (userId === session.id) {
+    redirect("/admin/clients?error=Cannot%20remove%20your%20own%20account");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { clientProfile: true },
+  });
+
+  if (!user || user.role !== "CLIENT" || !user.clientProfile) {
+    redirect("/admin/clients?error=Client%20not%20found");
+  }
+
+  await prisma.user.delete({ where: { id: userId } });
+  revalidatePath("/admin/clients");
+  redirect("/admin/clients?removed=1");
 }
 
 export async function updateProjectStatus(formData: FormData) {
@@ -162,6 +188,37 @@ export async function createStaffUser(formData: FormData) {
     },
   });
   revalidatePath("/admin/staff");
+}
+
+export async function removeStaffAccount(formData: FormData) {
+  const session = await requireAdmin();
+  if (session.role !== "ADMIN") {
+    redirect("/admin/staff?error=Only%20admins%20can%20remove%20staff");
+  }
+
+  const userId = String(formData.get("userId"));
+  if (!userId) {
+    redirect("/admin/staff?error=Invalid%20user");
+  }
+  if (userId === session.id) {
+    redirect("/admin/staff?error=Cannot%20remove%20your%20own%20account");
+  }
+
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+  if (!user || (user.role !== "STAFF" && user.role !== "ADMIN")) {
+    redirect("/admin/staff?error=Staff%20member%20not%20found");
+  }
+
+  if (user.role === "ADMIN") {
+    const adminCount = await prisma.user.count({ where: { role: "ADMIN" } });
+    if (adminCount <= 1) {
+      redirect("/admin/staff?error=Cannot%20remove%20the%20last%20admin");
+    }
+  }
+
+  await prisma.user.delete({ where: { id: userId } });
+  revalidatePath("/admin/staff");
+  redirect("/admin/staff?removed=1");
 }
 
 export async function updateTicketAdmin(formData: FormData) {

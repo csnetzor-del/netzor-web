@@ -61,9 +61,6 @@ function SignInFormInner() {
           Register
         </Link>
       </p>
-      <p className="mt-4 text-center text-xs text-muted/70">
-        Demo: client@demo.io / Client@123 · admin@netzor.io / Admin@123
-      </p>
     </Card>
   );
 }

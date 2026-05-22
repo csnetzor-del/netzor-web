@@ -2,10 +2,14 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { createStaffUser } from "@/lib/actions/admin";
+import { createStaffUser, removeStaffAccount } from "@/lib/actions/admin";
+import { ConfirmDeleteButton } from "@/components/admin/ConfirmDeleteButton";
 import { getSession } from "@/lib/auth";
 
-export default async function AdminStaffPage() {
+type Props = { searchParams: Promise<{ error?: string; removed?: string }> };
+
+export default async function AdminStaffPage({ searchParams }: Props) {
+  const params = await searchParams;
   const session = await getSession();
   const staff = await prisma.user.findMany({
     where: { role: { in: ["ADMIN", "STAFF"] } },
@@ -18,6 +22,17 @@ export default async function AdminStaffPage() {
   return (
     <div className="space-y-8">
       <h2 className="text-2xl font-bold">Staff & role management</h2>
+
+      {params.removed ? (
+        <p className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-emerald-200">
+          Staff member removed successfully.
+        </p>
+      ) : null}
+      {params.error ? (
+        <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-200">
+          {decodeURIComponent(params.error)}
+        </p>
+      ) : null}
 
       {isAdmin && (
         <Card>
@@ -51,31 +66,51 @@ export default async function AdminStaffPage() {
       )}
 
       <Card>
+        <CardHeader>
+          <CardTitle>All staff & admins</CardTitle>
+        </CardHeader>
         <div className="overflow-x-auto text-sm">
           <table className="w-full">
             <thead>
               <tr className="text-muted border-b border-border">
-                <th className="text-left pb-2">Name</th>
-                <th className="text-left pb-2">Email</th>
-                <th className="text-left pb-2">Role</th>
-                <th className="text-left pb-2">Department</th>
-                <th className="text-left pb-2">Permissions</th>
+                <th className="text-left pb-2 pr-4">Name</th>
+                <th className="text-left pb-2 pr-4">Email</th>
+                <th className="text-left pb-2 pr-4">Role</th>
+                <th className="text-left pb-2 pr-4">Department</th>
+                <th className="text-left pb-2 pr-4">Permissions</th>
+                {isAdmin ? <th className="text-left pb-2">Actions</th> : null}
               </tr>
             </thead>
             <tbody>
               {staff.map((u) => (
                 <tr key={u.id} className="border-b border-border/40">
-                  <td className="py-2">{u.name}</td>
-                  <td>{u.email}</td>
-                  <td>{u.role}</td>
-                  <td>{u.staffProfile?.department ?? "—"}</td>
-                  <td className="font-mono text-xs max-w-xs truncate">
+                  <td className="py-2 pr-4">{u.name}</td>
+                  <td className="py-2 pr-4">{u.email}</td>
+                  <td className="py-2 pr-4">{u.role}</td>
+                  <td className="py-2 pr-4">{u.staffProfile?.department ?? "—"}</td>
+                  <td className="py-2 pr-4 font-mono text-xs max-w-xs truncate">
                     {u.staffProfile?.permissions}
                   </td>
+                  {isAdmin ? (
+                    <td className="py-2">
+                      {u.id === session?.id ? (
+                        <span className="text-muted text-xs">You</span>
+                      ) : (
+                        <ConfirmDeleteButton
+                          action={removeStaffAccount}
+                          userId={u.id}
+                          confirmMessage={`Remove ${u.name} (${u.role})? This cannot be undone.`}
+                        />
+                      )}
+                    </td>
+                  ) : null}
                 </tr>
               ))}
             </tbody>
           </table>
+          {staff.length === 0 && (
+            <p className="py-6 text-center text-muted">No staff members yet.</p>
+          )}
         </div>
       </Card>
     </div>
