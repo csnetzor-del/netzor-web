@@ -1,7 +1,6 @@
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { getSession } from "@/lib/auth";
-import { trackEvent } from "@/lib/analytics";
 
 export default async function PublicLayout({
   children,
@@ -9,7 +8,6 @@ export default async function PublicLayout({
   children: React.ReactNode;
 }) {
   const session = await getSession();
-  await trackEvent("layout_view", "/public");
 
   return (
     <>

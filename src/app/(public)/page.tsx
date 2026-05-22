@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { trackEvent } from "@/lib/analytics";
 import { prisma } from "@/lib/prisma";
 import { siteImages } from "@/lib/site-images";
 import { HeroSlider } from "@/components/marketing/HeroSlider";
@@ -67,7 +66,6 @@ const heroSlides = [
 ];
 
 export default async function HomePage() {
-  await trackEvent("page_view", "/");
   const services = await prisma.service.findMany({
     where: { isActive: true },
     orderBy: { sortOrder: "asc" },

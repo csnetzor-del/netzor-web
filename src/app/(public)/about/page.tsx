@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/Card";
 import Link from "next/link";
-import { trackEvent } from "@/lib/analytics";
 import { siteImages } from "@/lib/site-images";
 import { PageHero } from "@/components/marketing/PageHero";
 import { BackgroundSection } from "@/components/marketing/BackgroundSection";
@@ -16,8 +15,6 @@ import {
 } from "lucide-react";
 
 export default async function AboutPage() {
-  await trackEvent("page_view", "/about");
-
   return (
     <div>
       <PageHero

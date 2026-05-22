@@ -4,7 +4,7 @@ import { formatCurrency } from "@/lib/utils";
 import { Users, DollarSign, FolderKanban, Ticket } from "lucide-react";
 
 export default async function AdminDashboardPage() {
-  const [clients, projects, payments, tickets, pageViews] = await Promise.all([
+  const [clients, projects, payments, tickets] = await Promise.all([
     prisma.clientProfile.count(),
     prisma.project.count(),
     prisma.payment.aggregate({
@@ -12,7 +12,6 @@ export default async function AdminDashboardPage() {
       where: { status: "COMPLETED" },
     }),
     prisma.ticket.count({ where: { status: { in: ["OPEN", "IN_PROGRESS"] } } }),
-    prisma.analyticsEvent.count({ where: { type: "page_view" } }),
   ]);
 
   const pendingInvoices = await prisma.invoice.aggregate({
@@ -49,21 +48,12 @@ export default async function AdminDashboardPage() {
           <p className="text-sm text-muted">Open tickets</p>
         </Card>
       </div>
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Pending receivables</CardTitle>
-          </CardHeader>
-          <p className="text-3xl font-bold text-warning">{formatCurrency(pending)}</p>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Traffic (page views)</CardTitle>
-          </CardHeader>
-          <p className="text-3xl font-bold">{pageViews}</p>
-          <p className="text-sm text-muted mt-1">Recorded analytics events</p>
-        </Card>
-      </div>
+      <Card className="max-w-md">
+        <CardHeader>
+          <CardTitle>Pending receivables</CardTitle>
+        </CardHeader>
+        <p className="text-3xl font-bold text-warning">{formatCurrency(pending)}</p>
+      </Card>
     </div>
   );
 }

@@ -9,7 +9,6 @@ import {
   FolderKanban,
   DollarSign,
   Briefcase,
-  BarChart3,
   UserCog,
   Ticket,
   Tag,
@@ -25,7 +24,6 @@ const items = [
   { href: "/admin/services", label: "Services", icon: Briefcase },
   { href: "/admin/tickets", label: "Tickets", icon: Ticket },
   { href: "/admin/staff", label: "Staff & Roles", icon: UserCog },
-  { href: "/admin/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
 export function AdminSidebar() {

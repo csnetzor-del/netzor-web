@@ -238,19 +238,6 @@ async function main() {
     data: { isActive: false },
   });
 
-  const analyticsCount = await prisma.analyticsEvent.count();
-  if (analyticsCount < 30) {
-    for (let i = analyticsCount; i < 30; i++) {
-      await prisma.analyticsEvent.create({
-        data: {
-          type: "page_view",
-          path: ["/", "/services", "/about", "/contact"][i % 4],
-          createdAt: new Date(Date.now() - i * 86400000 * 0.3),
-        },
-      });
-    }
-  }
-
   console.log("Seed complete.");
   console.log("Admin: admin@netzor.io / Admin@123");
   console.log("Staff: staff@netzor.io / Staff@123");

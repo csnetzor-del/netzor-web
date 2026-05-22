@@ -1,11 +1,9 @@
-import { trackEvent } from "@/lib/analytics";
 import { getPublicServices } from "@/lib/services";
 import { siteImages } from "@/lib/site-images";
 import { PageHero } from "@/components/marketing/PageHero";
 import { ServicesSection } from "@/components/marketing/ServicesSection";
 
 export default async function ServicesPage() {
-  await trackEvent("page_view", "/services");
   const services = await getPublicServices("all");
 
   return (

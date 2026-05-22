@@ -1,4 +1,3 @@
-import { trackEvent } from "@/lib/analytics";
 import { siteImages } from "@/lib/site-images";
 import { PageHero } from "@/components/marketing/PageHero";
 import { BackgroundSection } from "@/components/marketing/BackgroundSection";
@@ -10,7 +9,6 @@ export default async function ContactPage({
 }: {
   searchParams: Promise<{ sent?: string }>;
 }) {
-  await trackEvent("page_view", "/contact");
   const params = await searchParams;
 
   return (
