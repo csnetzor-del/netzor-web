@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getSession, hashPassword, canAccessAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { deleteUserWithRelations } from "@/lib/delete-user";
 import { generateClientCode } from "@/lib/utils";
 import type { ProjectStatus, Role } from "@prisma/client";
 
@@ -66,7 +67,13 @@ export async function removeClientAccount(formData: FormData) {
     redirect("/admin/clients?error=Client%20not%20found");
   }
 
-  await prisma.user.delete({ where: { id: userId } });
+  try {
+    await deleteUserWithRelations(userId, session.id);
+  } catch (err) {
+    console.error("removeClientAccount", err);
+    redirect("/admin/clients?error=Could%20not%20remove%20client");
+  }
+
   revalidatePath("/admin/clients");
   redirect("/admin/clients?removed=1");
 }
@@ -216,7 +223,13 @@ export async function removeStaffAccount(formData: FormData) {
     }
   }
 
-  await prisma.user.delete({ where: { id: userId } });
+  try {
+    await deleteUserWithRelations(userId, session.id);
+  } catch (err) {
+    console.error("removeStaffAccount", err);
+    redirect("/admin/staff?error=Could%20not%20remove%20staff%20(member%20may%20have%20linked%20records)");
+  }
+
   revalidatePath("/admin/staff");
   redirect("/admin/staff?removed=1");
 }
