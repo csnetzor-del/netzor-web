@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Logo } from "@/components/brand/Logo";
 
@@ -69,12 +70,12 @@ export default function SignUpPage() {
               className="w-full rounded-lg border border-border bg-surface px-3 py-2.5 text-foreground placeholder:text-muted/60 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
-          <Input
+          <PasswordInput
             label="Password"
             name="password"
-            type="password"
             required
             minLength={8}
+            autoComplete="new-password"
           />
           {error && <p className="text-sm text-danger">{error}</p>}
           <Button type="submit" className="w-full" disabled={loading}>

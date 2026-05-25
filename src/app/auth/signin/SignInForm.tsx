@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useState, Suspense } from "react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Logo } from "@/components/brand/Logo";
 
@@ -49,7 +50,7 @@ function SignInFormInner() {
       </CardHeader>
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input label="Email" name="email" type="email" required />
-        <Input label="Password" name="password" type="password" required />
+        <PasswordInput label="Password" name="password" required />
         {error && <p className="text-sm text-danger">{error}</p>}
         <Button type="submit" className="w-full" disabled={loading}>
           {loading ? "Signing in…" : "Sign in"}
