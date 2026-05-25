@@ -1,16 +1,9 @@
 import Image from "next/image";
 import { Card } from "@/components/ui/Card";
-import { siteImages } from "@/lib/site-images";
-
-const serviceImages: Record<string, string> = {
-  code: siteImages.sections.delivery,
-  cloud: siteImages.hero.cloud,
-  palette: siteImages.sections.data,
-  headphones: siteImages.sections.security,
-  shield: siteImages.sections.security,
-};
+import { getServiceImage, getServiceImageAlt } from "@/lib/site-images";
 
 type ServiceImageCardProps = {
+  slug: string;
   title: string;
   description: string;
   icon: React.ReactNode;
@@ -19,20 +12,22 @@ type ServiceImageCardProps = {
 };
 
 export function ServiceImageCard({
+  slug,
   title,
   description,
   icon,
   iconKey,
   priceFrom,
 }: ServiceImageCardProps) {
-  const image = serviceImages[iconKey] || siteImages.sections.services;
+  const image = getServiceImage(slug, iconKey);
+  const imageAlt = getServiceImageAlt(slug, title);
 
   return (
     <Card className="overflow-hidden p-0 group hover:border-accent/40 transition-all hover:shadow-xl hover:shadow-accent/5">
       <div className="relative h-44 w-full overflow-hidden">
         <Image
           src={image}
-          alt=""
+          alt={imageAlt}
           fill
           className="object-cover transition-transform duration-500 group-hover:scale-105"
           sizes="(max-width: 768px) 100vw, 50vw"

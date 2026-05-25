@@ -72,7 +72,7 @@ export default async function AboutPage() {
           <FeatureShowcase
             title="Expert team, proven delivery"
             description="NETZOR brings together consultants, engineers, cloud specialists, and support professionals — aligned to your industry and scale. Whether you need managed IT, cybersecurity, or full digital transformation, we scale with you."
-            imageSrc={siteImages.hero.team}
+            imageSrc={siteImages.hero.consulting}
             imageAlt="NETZOR expert team"
             href="/services"
             linkLabel="Explore our services"

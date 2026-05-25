@@ -28,8 +28,8 @@ const iconMap: Record<string, React.ElementType> = {
 const heroSlides = [
   {
     id: "portal",
-    image: siteImages.hero.main,
-    imageAlt: "Global technology network",
+    image: siteImages.hero.portal,
+    imageAlt: "Analytics dashboard and project tracking",
     eyebrow: "Enterprise IT · Secure Client Portal",
     title: (
       <>
@@ -44,7 +44,7 @@ const heroSlides = [
   {
     id: "ai",
     image: siteImages.hero.ai,
-    imageAlt: "AI and innovation",
+    imageAlt: "Artificial intelligence and machine learning",
     eyebrow: "Artificial intelligence",
     title: "AI-powered delivery, measurable outcomes",
     subtitle:
@@ -54,8 +54,8 @@ const heroSlides = [
   },
   {
     id: "team",
-    image: siteImages.hero.team,
-    imageAlt: "Collaborative technology team",
+    image: siteImages.hero.consulting,
+    imageAlt: "Business consulting and IT integration meeting",
     eyebrow: "Consulting & integration",
     title: "Your partner for end-to-end transformation",
     subtitle:
@@ -97,8 +97,8 @@ export default async function HomePage() {
       </section>
 
       <BackgroundSection
-        imageSrc={siteImages.sections.services}
-        imageAlt="Technology workspace"
+        imageSrc={siteImages.home.servicesBg}
+        imageAlt="Software development and IT services workspace"
         overlay="dark"
         className="py-20 sm:py-24"
       >
@@ -116,6 +116,7 @@ export default async function HomePage() {
               return (
                 <ServiceImageCard
                   key={s.id}
+                  slug={s.slug}
                   title={s.title}
                   description={s.shortDesc || s.description}
                   icon={<Icon className="h-8 w-8" />}
@@ -139,16 +140,16 @@ export default async function HomePage() {
           <FeatureShowcase
             title="Secure software delivery"
             description="Agile squads, documented milestones, and real-time project visibility — so you always know where your investment stands."
-            imageSrc={siteImages.sections.delivery}
-            imageAlt="Team collaboration"
+            imageSrc={siteImages.home.softwareDelivery}
+            imageAlt="Software engineering team delivering a project"
             href="/dashboard/projects"
             linkLabel="Client portal"
           />
           <FeatureShowcase
             title="Cloud, data & cybersecurity"
             description="Infrastructure design, analytics, and hardened operations — built for scale and compliance from day one."
-            imageSrc={siteImages.sections.security}
-            imageAlt="Security and cloud"
+            imageSrc={siteImages.home.cloudSecurity}
+            imageAlt="Cloud data center and cybersecurity infrastructure"
             href="/services"
             linkLabel="Explore capabilities"
             reverse
@@ -157,8 +158,8 @@ export default async function HomePage() {
       </section>
 
       <BackgroundSection
-        imageSrc={siteImages.sections.cta}
-        imageAlt="Modern office skyline"
+        imageSrc={siteImages.home.portalCta}
+        imageAlt="Modern office inviting clients to the portal"
         overlay="medium"
         className="py-24"
       >
