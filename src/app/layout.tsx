@@ -1,11 +1,24 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { getSession } from "@/lib/auth";
+import { getAppUrl } from "@/lib/app-url";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getAppUrl()),
   title: "Netzor — IT Solutions & Client Portal",
   description:
     "Professional software development, cloud services, and secure client portal for projects, billing, and support.",
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
   manifest: "/site.webmanifest",
   icons: {
     icon: [

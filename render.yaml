@@ -29,7 +29,7 @@ services:
       - key: NETZOR_PAY_MERCHANT_ID
         value: NZR-PROD
       - key: NEXT_PUBLIC_APP_URL
-        sync: false
+        value: https://www.netzor.in
       - key: NEXT_PUBLIC_RAZORPAY_KEY_ID
         sync: false
       - key: RAZORPAY_KEY_ID
