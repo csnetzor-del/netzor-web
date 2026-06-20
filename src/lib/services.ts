@@ -1,6 +1,7 @@
 import { prisma } from "./prisma";
 import {
   servicesCatalog,
+  type ServiceCatalogItem,
   type ServiceCategory,
   parseServiceFeatures,
 } from "./services-catalog";
@@ -33,19 +34,41 @@ function toDisplayService(
   };
 }
 
+function catalogToDisplayService(item: ServiceCatalogItem): ServiceForDisplay {
+  return {
+    id: item.slug,
+    title: item.title,
+    slug: item.slug,
+    description: item.description,
+    shortDesc: item.shortDesc,
+    emoji: item.emoji,
+    category: item.category,
+    features: JSON.stringify(item.features),
+  };
+}
+
 /** Fetch services for public pages (works even if Prisma client lacks `category` field). */
 export async function getPublicServices(
   filter: "all" | ServiceCategory = "all"
 ): Promise<ServiceForDisplay[]> {
-  const rows = await prisma.service.findMany({
-    where: {
-      isActive: true,
-      ...(filter === "core" ? { slug: { in: coreSlugs } } : {}),
-    },
-    orderBy: { sortOrder: "asc" },
-  });
+  let services: ServiceForDisplay[];
 
-  let services = rows.map(toDisplayService);
+  try {
+    const rows = await prisma.service.findMany({
+      where: {
+        isActive: true,
+        ...(filter === "core" ? { slug: { in: coreSlugs } } : {}),
+      },
+      orderBy: { sortOrder: "asc" },
+    });
+
+    services = rows.map(toDisplayService);
+  } catch {
+    services = servicesCatalog
+      .filter((service) => filter !== "core" || coreSlugs.includes(service.slug))
+      .sort((a, b) => a.sortOrder - b.sortOrder)
+      .map(catalogToDisplayService);
+  }
 
   if (filter === "advanced") {
     services = services.filter((s) => s.category === "advanced");

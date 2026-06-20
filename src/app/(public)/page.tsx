@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { prisma } from "@/lib/prisma";
+import { getPublicServices } from "@/lib/services";
 import { siteImages } from "@/lib/site-images";
 import { HeroSlider } from "@/components/marketing/HeroSlider";
 import { BackgroundSection } from "@/components/marketing/BackgroundSection";
@@ -66,11 +66,7 @@ const heroSlides = [
 ];
 
 export default async function HomePage() {
-  const services = await prisma.service.findMany({
-    where: { isActive: true },
-    orderBy: { sortOrder: "asc" },
-    take: 4,
-  });
+  const services = (await getPublicServices("core")).slice(0, 4);
 
   return (
     <div>
