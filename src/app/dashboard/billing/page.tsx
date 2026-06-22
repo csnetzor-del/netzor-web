@@ -4,7 +4,6 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { formatRupee, formatDate } from "@/lib/utils";
 import { NetzorPayCheckout } from "@/components/payment/NetzorPayCheckout";
-import { isRazorpayEnabled } from "@/lib/netzor-pay/razorpay";
 
 export default async function BillingPage() {
   const session = await getSession();
@@ -42,7 +41,6 @@ export default async function BillingPage() {
             installmentId={firstPending.inst.id}
             maxAmount={firstPending.inv.totalAmount - firstPending.inv.paidAmount}
             defaultAmount={firstPending.inst.amount}
-            razorpayEnabled={isRazorpayEnabled()}
           />
         )}
 

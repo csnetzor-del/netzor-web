@@ -61,12 +61,6 @@ Add these for **Production**:
 | `DATABASE_URL` | Neon pooled connection string |
 | `JWT_SECRET` | Long random string (32+ chars) |
 | `NEXT_PUBLIC_APP_URL` | `https://www.netzor.in` |
-| `NETZOR_PAY_PROVIDER` | `razorpay` |
-| `NETZOR_PAY_MERCHANT_ID` | `NZR-PROD` |
-| `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Your Razorpay key |
-| `RAZORPAY_KEY_ID` | Same as above |
-| `RAZORPAY_KEY_SECRET` | From Razorpay dashboard |
-| `RAZORPAY_WEBHOOK_SECRET` | From Razorpay webhook |
 | `NEXT_PUBLIC_WHATSAPP_URL` | Your WhatsApp link (optional) |
 
 4. Click **Deploy** and wait until **Ready**.
@@ -94,17 +88,7 @@ In **Hostinger** → **Domains** → **netzor.in** → **DNS**:
 
 ---
 
-## Part 4 — Razorpay webhook
-
-Razorpay → **Settings → Webhooks** → update endpoint to:
-
-```
-https://www.netzor.in/api/payments/webhook
-```
-
----
-
-## Part 5 — Google Search Console (after site is live)
+## Part 4 — Google Search Console (after site is live)
 
 1. **Settings → robots.txt → Request recrawl**
 2. **URL Inspection** → `https://www.netzor.in/` → **Test live URL** → **Request indexing**

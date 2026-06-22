@@ -6,14 +6,9 @@ import { NetzorPayCheckout } from "./NetzorPayCheckout";
 type Props = {
   invoiceId: string;
   amount: number;
-  razorpayEnabled: boolean;
 };
 
-export function RegistrationPaymentClient({
-  invoiceId,
-  amount,
-  razorpayEnabled,
-}: Props) {
+export function RegistrationPaymentClient({ invoiceId, amount }: Props) {
   const router = useRouter();
 
   async function onPaymentSuccess() {
@@ -27,7 +22,6 @@ export function RegistrationPaymentClient({
       invoiceId={invoiceId}
       maxAmount={amount}
       defaultAmount={amount}
-      razorpayEnabled={razorpayEnabled}
       registrationMode
       onSuccess={onPaymentSuccess}
     />

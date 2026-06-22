@@ -8,7 +8,6 @@ import {
   REGISTRATION_FEE_INR,
   getRegistrationInvoiceForClient,
 } from "@/lib/registration";
-import { isRazorpayEnabled } from "@/lib/netzor-pay/razorpay";
 import { formatRupee } from "@/lib/utils";
 
 export default async function SignupPaymentPage() {
@@ -56,11 +55,7 @@ export default async function SignupPaymentPage() {
           </CardHeader>
         </Card>
 
-        <RegistrationPaymentClient
-          invoiceId={invoice.id}
-          amount={balance}
-          razorpayEnabled={isRazorpayEnabled()}
-        />
+        <RegistrationPaymentClient invoiceId={invoice.id} amount={balance} />
       </div>
     </div>
   );
