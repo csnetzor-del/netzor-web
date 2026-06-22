@@ -15,6 +15,9 @@ function serverActionOrigins(): string[] {
       /* ignore invalid URL */
     }
   }
+  if (process.env.VERCEL_URL) {
+    hosts.add(process.env.VERCEL_URL);
+  }
   return [...hosts];
 }
 
