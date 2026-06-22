@@ -11,6 +11,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
+    "build:vercel": "prisma generate && prisma db push && next build",
     "start": "next start -H 0.0.0.0 -p ${PORT:-3000}",
     "lint": "next lint",
     "db:push": "prisma db push",
