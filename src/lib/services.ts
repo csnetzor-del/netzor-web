@@ -15,6 +15,17 @@ const coreSlugs = servicesCatalog
   .filter((s) => s.category === "core")
   .map((s) => s.slug);
 
+const DB_QUERY_TIMEOUT_MS = 3000;
+
+async function withDbTimeout<T>(promise: Promise<T>): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) => {
+      setTimeout(() => reject(new Error("Database query timed out")), DB_QUERY_TIMEOUT_MS);
+    }),
+  ]);
+}
+
 function toDisplayService(
   row: Awaited<ReturnType<typeof prisma.service.findMany>>[number]
 ): ServiceForDisplay {
@@ -54,13 +65,15 @@ export async function getPublicServices(
   let services: ServiceForDisplay[];
 
   try {
-    const rows = await prisma.service.findMany({
-      where: {
-        isActive: true,
-        ...(filter === "core" ? { slug: { in: coreSlugs } } : {}),
-      },
-      orderBy: { sortOrder: "asc" },
-    });
+    const rows = await withDbTimeout(
+      prisma.service.findMany({
+        where: {
+          isActive: true,
+          ...(filter === "core" ? { slug: { in: coreSlugs } } : {}),
+        },
+        orderBy: { sortOrder: "asc" },
+      })
+    );
 
     services = rows.map(toDisplayService);
   } catch {

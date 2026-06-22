@@ -14,7 +14,7 @@ services:
     buildCommand: npm install --include=dev && npx prisma generate && npx prisma db push && npm run db:seed-all && npm run build
     # Do NOT use "npm start -p $PORT" — npm treats -p as --prefix and breaks Next.js
     startCommand: npx next start -H 0.0.0.0 -p $PORT
-    healthCheckPath: /
+    healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
