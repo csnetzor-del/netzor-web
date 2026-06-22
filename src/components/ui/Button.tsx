@@ -14,9 +14,9 @@ export function Button({
 }: Props) {
   const variants = {
     primary:
-      "bg-accent hover:bg-accent-glow text-white shadow-lg shadow-blue-500/20",
+      "bg-gradient-to-r from-accent to-accent-glow hover:brightness-110 text-white shadow-lg shadow-accent/30",
     secondary:
-      "bg-surface-elevated border border-border hover:border-accent/50 text-foreground",
+      "bg-white border border-border hover:border-accent/60 hover:shadow-md text-foreground",
     ghost: "hover:bg-surface-elevated text-muted hover:text-foreground",
     danger: "bg-danger/90 hover:bg-danger text-white",
   };

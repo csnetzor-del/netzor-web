@@ -3,8 +3,7 @@ import path from "node:path";
 import sharp from "sharp";
 
 const ROOT = path.resolve(process.cwd());
-const INPUT =
-  "C:\\Users\\DELL\\.cursor\\projects\\d-Projects-Netzor-Web\\assets\\c__Users_DELL_AppData_Roaming_Cursor_User_workspaceStorage_c21b4139ef5131afdb72c14fcea75fc9_images_lodo-73da48ec-82b7-45bd-87e5-a03e2d99ebc9.png";
+const INPUT = path.join(ROOT, "assets", "brand-logo.png");
 
 const publicDir = path.join(ROOT, "public");
 const appDir = path.join(ROOT, "src", "app");
@@ -16,31 +15,39 @@ const outputs = [
   { filename: "apple-touch-icon.png", size: 180 },
   { filename: "android-chrome-192x192.png", size: 192 },
   { filename: "android-chrome-512x512.png", size: 512 },
-  { filename: "logo-icon.png", size: 256 },
+  { filename: "logo-icon.png", size: 320 },
+  { filename: "logo.png", size: 512 },
 ];
 
-/** Crop the shield emblem (top of logo), not the full image with text. */
-function shieldCrop(meta) {
-  const width = Math.floor(meta.width * 0.52);
-  const height = Math.floor(meta.height * 0.58);
-  return {
-    left: Math.floor((meta.width - width) / 2),
-    top: Math.floor(meta.height * 0.06),
-    width,
-    height,
-  };
-}
+/** Make near-black pixels transparent so the shield works on any background. */
+async function loadTransparentLogo() {
+  const { data, info } = await sharp(INPUT, { failOn: "none" })
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
 
-async function writeIcon(size, dest) {
-  const meta = await sharp(INPUT, { failOn: "none" }).metadata();
-  if (!meta.width || !meta.height) {
-    throw new Error("Could not read input image metadata");
+  const threshold = 42;
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    if (r <= threshold && g <= threshold && b <= threshold) {
+      data[i + 3] = 0;
+    }
   }
 
-  const crop = shieldCrop(meta);
-  await sharp(INPUT, { failOn: "none" })
-    .extract(crop)
-    .resize(size, size, { fit: "contain", background: { r: 0, g: 0, b: 0, alpha: 0 } })
+  return sharp(data, {
+    raw: { width: info.width, height: info.height, channels: 4 },
+  }).png();
+}
+
+async function writeIcon(pipeline, size, dest) {
+  await pipeline
+    .clone()
+    .resize(size, size, {
+      fit: "contain",
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
     .png()
     .toFile(dest);
 }
@@ -49,8 +56,10 @@ async function main() {
   await fs.mkdir(publicDir, { recursive: true });
   await fs.mkdir(appDir, { recursive: true });
 
+  const logo = await loadTransparentLogo();
+
   for (const o of outputs) {
-    await writeIcon(o.size, path.join(publicDir, o.filename));
+    await writeIcon(logo, o.size, path.join(publicDir, o.filename));
   }
 
   await fs.copyFile(
@@ -58,11 +67,9 @@ async function main() {
     path.join(publicDir, "favicon.png")
   );
 
-  // Next.js auto-discovers these for /favicon.ico and metadata.
-  await writeIcon(48, path.join(appDir, "icon.png"));
-  await writeIcon(180, path.join(appDir, "apple-icon.png"));
+  await writeIcon(logo, 48, path.join(appDir, "icon.png"));
+  await writeIcon(logo, 180, path.join(appDir, "apple-icon.png"));
 
-  // Many crawlers (including Google) still request /favicon.ico directly.
   await fs.copyFile(
     path.join(publicDir, "favicon-32x32.png"),
     path.join(publicDir, "favicon.ico")
@@ -78,8 +85,8 @@ async function main() {
           { src: "/android-chrome-192x192.png", sizes: "192x192", type: "image/png" },
           { src: "/android-chrome-512x512.png", sizes: "512x512", type: "image/png" },
         ],
-        theme_color: "#0a1628",
-        background_color: "#0a1628",
+        theme_color: "#007fff",
+        background_color: "#f4f9ff",
         display: "standalone",
       },
       null,
@@ -87,7 +94,7 @@ async function main() {
     )
   );
 
-  console.log("Favicons + logo-icon regenerated from shield emblem.");
+  console.log("Brand logo, favicons, and transparent PNGs generated.");
 }
 
 main().catch((err) => {

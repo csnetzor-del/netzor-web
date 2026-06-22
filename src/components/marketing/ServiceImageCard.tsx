@@ -23,7 +23,7 @@ export function ServiceImageCard({
   const imageAlt = getServiceImageAlt(slug, title);
 
   return (
-    <Card className="overflow-hidden p-0 group hover:border-accent/40 transition-all hover:shadow-xl hover:shadow-accent/5">
+    <Card className="overflow-hidden p-0 group hover:border-accent/50 transition-all hover:shadow-xl hover:shadow-accent/15">
       <div className="relative h-44 w-full overflow-hidden">
         <Image
           src={image}

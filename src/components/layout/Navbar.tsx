@@ -25,7 +25,7 @@ export function Navbar({ session }: { session?: { name: string; role: string } |
       : "/dashboard";
 
   return (
-    <header className="fixed top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-md shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+    <header className="fixed top-0 z-50 w-full border-b border-border/80 bg-white/85 backdrop-blur-xl shadow-[0_4px_30px_rgba(0,127,255,0.1)]">
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6">
         <Logo size="lg" priority />
 
