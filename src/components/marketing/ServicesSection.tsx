@@ -12,8 +12,10 @@ export type ServiceForDisplay = {
   description: string;
   shortDesc?: string | null;
   emoji?: string | null;
+  icon: string;
   category: string;
   features: string;
+  priceFrom?: number | null;
 };
 
 type ServicesSectionProps = {

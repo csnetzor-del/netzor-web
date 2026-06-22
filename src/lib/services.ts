@@ -37,11 +37,13 @@ function toDisplayService(
     description: row.description,
     shortDesc: row.shortDesc,
     emoji: row.emoji ?? catalog?.emoji ?? null,
-    category: catalog?.category ?? "core",
+    icon: row.icon || catalog?.icon || "code",
+    category: catalog?.category ?? row.category ?? "core",
     features:
       row.features && row.features !== "[]"
         ? row.features
         : JSON.stringify(catalog?.features ?? []),
+    priceFrom: row.priceFrom,
   };
 }
 
@@ -53,8 +55,10 @@ function catalogToDisplayService(item: ServiceCatalogItem): ServiceForDisplay {
     description: item.description,
     shortDesc: item.shortDesc,
     emoji: item.emoji,
+    icon: item.icon,
     category: item.category,
     features: JSON.stringify(item.features),
+    priceFrom: null,
   };
 }
 

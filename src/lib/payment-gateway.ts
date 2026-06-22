@@ -71,6 +71,7 @@ export async function processNetzorPay(
       couponId,
       gatewayResponse: JSON.stringify({
         merchantId,
+        apiKey: apiKey.slice(0, 4) + "…",
         cardBrand: input.cardBrand || "visa",
         cardLast4: input.cardLast4,
         channel: "netzor_pay_secure",
