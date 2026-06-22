@@ -37,7 +37,7 @@ export function HeroSlider({ slides }: { slides: HeroSlide[] }) {
   const slide = slides[index];
 
   return (
-    <section className="relative mt-20 h-[calc(72vh-5rem)] min-h-[420px] max-h-[740px] w-full overflow-hidden border-b border-border shadow-[0_8px_32px_rgba(0,0,0,0.35)]">
+    <section className="relative mt-20 h-[calc(72vh-5rem)] min-h-[420px] max-h-[740px] w-full overflow-hidden border-b border-border shadow-[0_8px_32px_rgba(0,127,255,0.15)]">
       {slides.map((s, i) => (
         <div
           key={s.id}

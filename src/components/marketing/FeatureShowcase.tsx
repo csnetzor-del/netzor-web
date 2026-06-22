@@ -29,7 +29,7 @@ export function FeatureShowcase({
         reverse && "lg:[&>*:first-child]:order-2"
       )}
     >
-      <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-border/60 shadow-2xl shadow-black/40">
+      <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-border/60 shadow-2xl shadow-accent/15">
         <Image
           src={imageSrc}
           alt={imageAlt}
