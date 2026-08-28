@@ -21,29 +21,32 @@ export default async function BillingPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  const firstPending = invoices
-    .flatMap((inv) =>
-      inv.installments
-        .filter((i) => i.status === "PENDING")
-        .map((i) => ({ inv, inst: i }))
-    )[0];
+  const firstPendingInvoice = invoices.find(
+    (inv) => inv.status !== "PAID" && inv.totalAmount - inv.paidAmount > 0
+  );
+  const pendingInstallment = firstPendingInvoice?.installments.find(
+    (i) => i.status === "PENDING"
+  );
+  const remainingBalance = firstPendingInvoice
+    ? firstPendingInvoice.totalAmount - firstPendingInvoice.paidAmount
+    : 0;
 
   return (
     <div className="space-y-8">
       <div>
         <h2 className="text-2xl font-bold">Billing & payments</h2>
         <p className="text-muted text-sm mt-1">
-          Invoices, installments, and secure Razorpay checkout
+          Invoices and secure Razorpay checkout
         </p>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-2">
-        {firstPending && (
+        {firstPendingInvoice && (
           <NetzorPayCheckout
-            invoiceId={firstPending.inv.id}
-            installmentId={firstPending.inst.id}
-            maxAmount={firstPending.inv.totalAmount - firstPending.inv.paidAmount}
-            defaultAmount={firstPending.inst.amount}
+            invoiceId={firstPendingInvoice.id}
+            installmentId={pendingInstallment?.id}
+            maxAmount={remainingBalance}
+            defaultAmount={remainingBalance}
           />
         )}
 
@@ -82,7 +85,7 @@ export default async function BillingPage() {
                 </div>
               </div>
 
-              {inv.installments.length > 0 && (
+              {inv.installments.length > 1 && (
                 <>
                   <h4 className="text-xs font-semibold uppercase text-muted tracking-wider mt-4 mb-2">Installments</h4>
                   <ul className="space-y-2 text-sm">

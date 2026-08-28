@@ -85,20 +85,22 @@ export default async function DashboardPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Upcoming installments</CardTitle>
+          <CardTitle>Pending invoices & payments</CardTitle>
         </CardHeader>
         <div className="space-y-3">
-          {invoices.flatMap((inv) =>
-            inv.installments
-              .filter((i) => i.status === "PENDING")
-              .map((i) => (
-                <div key={i.id} className="flex justify-between text-sm">
-                  <span>
-                    {i.label} · due {formatDate(i.dueDate)}
-                  </span>
-                  <span className="font-medium">{formatRupee(i.amount)}</span>
+          {invoices
+            .filter((inv) => inv.totalAmount - inv.paidAmount > 0)
+            .map((inv) => (
+              <div key={inv.id} className="flex justify-between text-sm items-center border-b border-border/40 pb-2.5 last:border-0 last:pb-0">
+                <div>
+                  <span className="font-medium text-foreground">{inv.title}</span>
+                  <span className="text-xs text-muted block font-mono">{inv.invoiceNo}</span>
                 </div>
-              ))
+                <span className="font-bold text-accent-glow">{formatRupee(inv.totalAmount - inv.paidAmount)}</span>
+              </div>
+            ))}
+          {invoices.filter((inv) => inv.totalAmount - inv.paidAmount > 0).length === 0 && (
+            <p className="text-sm text-muted">No pending payments.</p>
           )}
         </div>
         <Link href="/dashboard/billing" className="inline-block mt-4">

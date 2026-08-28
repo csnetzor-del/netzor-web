@@ -278,36 +278,40 @@ export async function updateTicketAdmin(formData: FormData) {
 
 export async function createInvoice(formData: FormData) {
   await requireAdmin();
-  const total = parseFloat(String(formData.get("totalAmount")));
+  const clientId = String(formData.get("clientId") || "").trim();
+  const title = String(formData.get("title") || "").trim();
+  const total = parseFloat(String(formData.get("totalAmount") || "0"));
+
+  if (!clientId || !title || isNaN(total) || total <= 0) {
+    redirect("/admin/payments?error=" + encodeURIComponent("Valid client, title, and total amount are required"));
+  }
+
   const invoiceNo = `INV-${Date.now().toString().slice(-6)}`;
 
-  await prisma.invoice.create({
-    data: {
-      clientId: String(formData.get("clientId")),
-      invoiceNo,
-      title: String(formData.get("title")),
-      totalAmount: total,
-      status: "PENDING",
-      installments: {
-        create: [
-          {
-            label: "Installment 1",
-            amount: total / 3,
-            dueDate: new Date(Date.now() + 30 * 86400000),
-          },
-          {
-            label: "Installment 2",
-            amount: total / 3,
-            dueDate: new Date(Date.now() + 90 * 86400000),
-          },
-          {
-            label: "Installment 3",
-            amount: total / 3,
-            dueDate: new Date(Date.now() + 180 * 86400000),
-          },
-        ],
+  try {
+    await prisma.invoice.create({
+      data: {
+        clientId,
+        invoiceNo,
+        title,
+        totalAmount: total,
+        status: "PENDING",
+        installments: {
+          create: [
+            {
+              label: "Invoice Payment",
+              amount: total,
+              dueDate: new Date(Date.now() + 30 * 86400000),
+            },
+          ],
+        },
       },
-    },
-  });
+    });
+  } catch (err) {
+    console.error("createInvoice", err);
+    redirect("/admin/payments?error=" + encodeURIComponent("Failed to create invoice"));
+  }
+
   revalidatePath("/admin/payments");
+  redirect("/admin/payments");
 }

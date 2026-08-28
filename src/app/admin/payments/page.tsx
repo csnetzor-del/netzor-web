@@ -6,7 +6,10 @@ import { Badge } from "@/components/ui/Badge";
 import { formatCurrency, formatDate } from "@/lib/utils";
 import { createInvoice } from "@/lib/actions/admin";
 
-export default async function AdminPaymentsPage() {
+type Props = { searchParams: Promise<{ error?: string }> };
+
+export default async function AdminPaymentsPage({ searchParams }: Props) {
+  const params = await searchParams;
   const [payments, invoices, clients] = await Promise.all([
     prisma.payment.findMany({
       include: { invoice: { include: { client: { include: { user: true } } } }, coupon: true },
@@ -32,6 +35,12 @@ export default async function AdminPaymentsPage() {
     <div className="space-y-8">
       <h2 className="text-2xl font-bold">Payment tracking</h2>
 
+      {params?.error ? (
+        <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm text-red-200">
+          {decodeURIComponent(params.error)}
+        </p>
+      ) : null}
+
       <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <p className="text-sm text-muted">Received</p>
@@ -45,7 +54,7 @@ export default async function AdminPaymentsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Create invoice with installments</CardTitle>
+          <CardTitle>Create invoice / Assign payment</CardTitle>
         </CardHeader>
         <form action={createInvoice} className="grid gap-4 sm:grid-cols-2">
           <div>
