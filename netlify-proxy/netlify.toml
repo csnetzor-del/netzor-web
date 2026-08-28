@@ -1,0 +1,17 @@
+# Deploy with Base directory: netlify-proxy
+# Proxies all traffic to Render (browser stays on netzor.in)
+
+[build]
+  publish = "public"
+
+[[redirects]]
+  from = "/"
+  to = "https://netzor-web.onrender.com/"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "https://netzor-web.onrender.com/:splat"
+  status = 200
+  force = true
