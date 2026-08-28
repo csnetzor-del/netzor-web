@@ -19,32 +19,44 @@ async function requireAdmin() {
 export async function createClientAccount(formData: FormData) {
   await requireAdmin();
 
-  const name = String(formData.get("name"));
-  const email = String(formData.get("email")).toLowerCase();
-  const password = String(formData.get("password"));
-  const companyName = String(formData.get("companyName") || "");
+  const name = String(formData.get("name") || "").trim();
+  const email = String(formData.get("email") || "").toLowerCase().trim();
+  const password = String(formData.get("password") || "").trim();
+  const companyName = String(formData.get("companyName") || "").trim();
+
+  if (!name || !email || !password) {
+    redirect("/admin/clients?error=" + encodeURIComponent("Name, email, and password are required"));
+  }
 
   const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) throw new Error("Email already exists");
+  if (existing) {
+    redirect("/admin/clients?error=" + encodeURIComponent("A user with this email address already exists"));
+  }
 
   let clientCode = generateClientCode();
   while (await prisma.clientProfile.findUnique({ where: { clientCode } })) {
     clientCode = generateClientCode();
   }
 
-  await prisma.user.create({
-    data: {
-      name,
-      email,
-      passwordHash: await hashPassword(password),
-      role: "CLIENT",
-      clientProfile: {
-        create: { companyName: companyName || null, clientCode },
+  try {
+    await prisma.user.create({
+      data: {
+        name,
+        email,
+        passwordHash: await hashPassword(password),
+        role: "CLIENT",
+        clientProfile: {
+          create: { companyName: companyName || null, clientCode },
+        },
       },
-    },
-  });
+    });
+  } catch (err) {
+    console.error("createClientAccount", err);
+    redirect("/admin/clients?error=" + encodeURIComponent("Failed to create client account"));
+  }
 
   revalidatePath("/admin/clients");
+  redirect("/admin/clients");
 }
 
 export async function removeClientAccount(formData: FormData) {
@@ -172,29 +184,47 @@ export async function createCoupon(formData: FormData) {
 
 export async function createStaffUser(formData: FormData) {
   const session = await requireAdmin();
-  if (session.role !== "ADMIN") throw new Error("Admin only");
+  if (session.role !== "ADMIN") {
+    redirect("/admin/staff?error=" + encodeURIComponent("Admin access required"));
+  }
 
-  const email = String(formData.get("email")).toLowerCase();
+  const name = String(formData.get("name") || "").trim();
+  const email = String(formData.get("email") || "").toLowerCase().trim();
+  const password = String(formData.get("password") || "").trim();
+
+  if (!name || !email || !password) {
+    redirect("/admin/staff?error=" + encodeURIComponent("Name, email, and password are required"));
+  }
+
   const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) throw new Error("Email exists");
+  if (existing) {
+    redirect("/admin/staff?error=" + encodeURIComponent("A user with this email address already exists"));
+  }
 
   const permissions = String(formData.get("permissions") || "[]");
 
-  await prisma.user.create({
-    data: {
-      name: String(formData.get("name")),
-      email,
-      passwordHash: await hashPassword(String(formData.get("password"))),
-      role: (String(formData.get("role") || "STAFF")) as Role,
-      staffProfile: {
-        create: {
-          department: String(formData.get("department") || ""),
-          permissions,
+  try {
+    await prisma.user.create({
+      data: {
+        name,
+        email,
+        passwordHash: await hashPassword(password),
+        role: (String(formData.get("role") || "STAFF")) as Role,
+        staffProfile: {
+          create: {
+            department: String(formData.get("department") || ""),
+            permissions,
+          },
         },
       },
-    },
-  });
+    });
+  } catch (err) {
+    console.error("createStaffUser", err);
+    redirect("/admin/staff?error=" + encodeURIComponent("Failed to create staff account"));
+  }
+
   revalidatePath("/admin/staff");
+  redirect("/admin/staff");
 }
 
 export async function removeStaffAccount(formData: FormData) {
