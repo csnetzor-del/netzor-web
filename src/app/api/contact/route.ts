@@ -1,8 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { trackEvent } from "@/lib/analytics";
-import { getAppUrl } from "@/lib/app-url";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const form = await request.formData();
   await trackEvent("contact_form", "/contact", undefined, {
     name: form.get("name"),
@@ -11,7 +10,7 @@ export async function POST(request: Request) {
     service: form.get("service"),
     message: String(form.get("message") || "").slice(0, 200),
   });
-  return NextResponse.redirect(
-    new URL("/contact?sent=1", getAppUrl())
-  );
+  const origin = request.headers.get("origin") || request.nextUrl.origin || "/";
+  return NextResponse.redirect(new URL("/contact?sent=1", origin));
 }
+

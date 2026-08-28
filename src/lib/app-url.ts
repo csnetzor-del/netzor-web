@@ -2,9 +2,7 @@
 export function getAppUrl() {
   const raw =
     process.env.NEXT_PUBLIC_APP_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined) ||
-    process.env.RENDER_EXTERNAL_URL ||
-    "http://localhost:3000";
+    (process.env.NODE_ENV === "production" ? "https://www.netzor.in" : "http://localhost:3000");
 
   try {
     const url = new URL(raw);
@@ -16,3 +14,4 @@ export function getAppUrl() {
     return raw.replace(/\/$/, "");
   }
 }
+

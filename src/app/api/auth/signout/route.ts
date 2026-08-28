@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
 import { destroySession } from "@/lib/auth";
-import { getAppUrl } from "@/lib/app-url";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
   await destroySession();
-  return NextResponse.redirect(new URL("/", getAppUrl()));
+  const origin = request.headers.get("origin") || request.nextUrl.origin || "/";
+  return NextResponse.redirect(new URL("/", origin));
 }
+
